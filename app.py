@@ -48,7 +48,7 @@ if "display_messages" not in st.session_state:
 if "sesi_aktif" not in st.session_state:
     st.session_state.sesi_aktif = False
 if "jawaban_terproses" not in st.session_state:
-    st.session_state.jawaban_terproses = None # Kunci untuk anti-looping
+    st.session_state.jawaban_terproses = None 
 
 # 5. PANEL SAMPING (PENGATURAN)
 with st.sidebar:
@@ -61,14 +61,14 @@ with st.sidebar:
             st.session_state.display_messages = []
             st.session_state.jawaban_terproses = None
             
-            # SUNTIKAN PROMPT ENGINEERING (Santai & Keren)
+            # PROMPT ENGINEERING (Santai & Keren)
             instruksi = (
                 f"Bertindaklah sebagai pewawancara ahli bernama 'Ardan' (jika kamu memilih karakter pria) atau 'Kiara' (jika wanita). "
                 f"Kamu sedang mengobrol santai lewat telepon dengan Aryadefa (mahasiswa Ilmu Komputer USU) untuk posisi: '{posisi}'. "
                 f"Tugas: Sapa Aryadefa, perkenalkan dirimu, dan LANGSUNG BERIKAN 1 PERTANYAAN PERTAMA. "
                 f"ATURAN: "
                 f"1. JANGAN PERNAH menggunakan simbol markdown (*, #, []). "
-                f"2. Gunakan gaya bahasa anak Jakarta/Startup yang asik, luwes, dan gak kaku. "
+                f"2. Gunakan gaya bahasa Startup yang asik, luwes, dan gak kaku. "
                 f"3. Cukup berikan 1 pertanyaan per giliran."
             )
             st.session_state.messages.append(HumanMessage(content=instruksi))
@@ -88,7 +88,6 @@ with st.sidebar:
 
 # 6. AREA CHAT UTAMA
 if st.session_state.sesi_aktif:
-    # Tampilkan histori
     for index, msg in enumerate(st.session_state.display_messages):
         avatar_icon = "👤" if msg["role"] == "user" else "🤖"
         with st.chat_message(msg["role"], avatar=avatar_icon):
@@ -109,10 +108,8 @@ if st.session_state.sesi_aktif:
     
     with col1:
         st.write("**Jawab pakai Mic:**")
-        # key="audio_input" mencegah bentrok state
         audio_bytes = audio_recorder(text="Klik Mic", icon_size="2x", key="audio_input")
         if audio_bytes:
-            # Cegah error audio terlalu pendek (minimal ~1000 bytes untuk rekaman suara beneran)
             if len(audio_bytes) > 2000:
                 with st.spinner("Menerjemahkan suara..."):
                     try:
@@ -136,11 +133,9 @@ if st.session_state.sesi_aktif:
         if user_text:
             jawaban_user = user_text
 
-    # LOGIKA ANTI-LOOPING
-    # Pastikan jawaban baru diproses jika berbeda dengan jawaban terakhir yang diproses
+    # ANTI-LOOPING
     if jawaban_user and jawaban_user != st.session_state.jawaban_terproses:
         
-        # Simpan jawaban ini sebagai yang sedang diproses
         st.session_state.jawaban_terproses = jawaban_user
         
         prompt_pengingat = f"Jawaban Aryadefa: '{jawaban_user}'. (Ingat: Respons santai, asik, tanpa markdown, lalu lanjut 1 pertanyaan)."
